@@ -5,7 +5,7 @@ Steam Trashbot written in Javascript
 
 Clone the repository to a computer that has (or will have) nodejs and npm installed.
 Enter the directory of the cloned repository and run `npm install` to install all the required dependencies.
-Fill in the file `config.json` with your account specific details
+Fill in the `config.json` file with your account specific details
 Run `trashbot.js`
 
 # Notes
