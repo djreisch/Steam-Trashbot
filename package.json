@@ -1,0 +1,23 @@
+{
+  "name": "trashbot",
+  "version": "1.0.0",
+  "description": "NodeJS Steam Trashbot",
+  "homepage": "https://github.com/djreisch/Steam-Trashbot",
+  "main": "trash.js",
+  "author": "Daniel Reisch",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djreisch/Steam-Trashbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/djreisch/Steam-Trashbot/issues"
+  },
+  "dependencies": {
+    "steam-user": "^3.23.2",
+    "steam-totp": "^2.0.1",
+    "steam-tradeoffer-manager": "^2.9.0",
+    "steamcommunity": "^3.33.0",
+    "steamstore": "^1.5.0"
+  }
+}
