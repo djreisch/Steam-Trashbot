@@ -1,5 +1,10 @@
-# Steam-Trashbot
-Steam Trashbot written in Javascript
+# Purpose
+
+The purpose behind the Steam Trashbot is to automate Steam Trades.
+The script logs into a Steam account (provided the proper credentials have been provided) and waits for a trade offer.
+Once a trade offer is received it will accept the trade no matter the contents. It will log to console if items were received.
+It's important to note that the script CANNOT handle live trades. The bot will ignore Trade Invited.
+
 
 # Installation
 
