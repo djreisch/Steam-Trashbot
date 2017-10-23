@@ -15,5 +15,5 @@ It's important to note that the script CANNOT handle live trades. The bot will i
 
 # Notes
 
-The Bot only responds to trade requests so the Steam account MUST be setup to accept trade offers via a tradelink
-if you do not intend for the bot to be friend with anyone who wants to trade it.
+The Bot only responds to trade requests ONLY so the Steam account MUST be setup to accept trade offers via a tradelink
+if you do not intend for the bot to be friend with anyone who wants to trade it. Otherwise trade offers can be sent via the Steam Profile page, granted that the user has been added as a friend.
