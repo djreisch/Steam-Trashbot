@@ -30,7 +30,7 @@ SteamTotp.getTimeOffset(function(err, offset, latency)
 client.on('loggedOn', function()
 {
     // Everything in here will be emitted when you have connected and logged onto Steam.
-    console.log("Logged onto steam as " + client.steamID.getSteamID64() + "(" + config.account_name + ")");
+    console.log("Logged onto steam as " + client.steamID.getSteamID64() + " (" + config.account_name + ")");
 });
 
 // Emitted when the bot has signed onto Steam through the browser. We will use the cookies for two of our modules.
