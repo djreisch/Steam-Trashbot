@@ -17,7 +17,7 @@
     "steam-user": "^3.23.2",
     "steam-totp": "^2.0.1",
     "steam-tradeoffer-manager": "^2.9.0",
-    "steamcommunity": "^3.33.0",
+    "steamcommunity": "^3.33.1",
     "steamstore": "^1.5.0"
   }
 }
