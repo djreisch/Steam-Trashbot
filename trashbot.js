@@ -31,6 +31,10 @@ client.on('loggedOn', function()
 {
     // Everything in here will be emitted when you have connected and logged onto Steam.
     console.log("Logged onto steam as " + client.steamID.getSteamID64() + " (" + config.account_name + ")");
+    
+    // Set state to online and will beging "playing" custom game
+    client.setPersona(1); //Persona 1 = Online. Persona 0 = Offline
+    client.gamesPlayed("Got Trash?");
 });
 
 // Emitted when the bot has signed onto Steam through the browser. We will use the cookies for two of our modules.
