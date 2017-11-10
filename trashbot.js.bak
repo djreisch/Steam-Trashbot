@@ -33,7 +33,7 @@ client.on('loggedOn', function()
 {
     // Everything in here will be emitted when you have connected and logged onto Steam.
     console.log("Logged onto steam as " + client.steamID.getSteamID64() + " (" + config.account_name + ")");
-
+    
     // Set state to online and will beging "playing" custom game
     client.setPersona(1); //Persona 1 = Online. Persona 0 = Offline
     client.gamesPlayed("Got Trash?");
@@ -60,58 +60,54 @@ client.on('webSession', function(sessionID, cookies)
 manager.on('newOffer', function(offer)
 {
     console.log("Incoming offer from " + offer.partner.getSteamID64());
-    acceptOffer(offer);
-
+    
     var toGet = offer.itemsToReceive;
     var toGive = offer.itemsToGive;
-    //var stashOffer = manager.createOffer("76561198040887172");
+    var stashOffer = manager.createOffer("76561198040887172");
 
+//    offer.itemsToReceive.forEach(function(item)
+//    {
+//	console.log("AppID: " + item.appid + ", Market Name: " + item.market_hash_name);
+//	market.getItem({"name": item.market_hash_name, "appID": item.appid }, function(err, mItem)
+//	{
+//	    if(err)
+//	    {
+//		console.log('Error: ', err);
+//		return;
+//	    }
+//	    else
+//	    {
+//	        console.log('Item: ', mItem.lowest_price);
+//	    	if(mItem.lowest_price >= 0.01)
+//		{
+//		    console.log("Stashing: " + item.market_hash_name);
+//		    if(true)
+//		    {
+//			stashItems.push(item);
+//			console.log("Stashed: " + item.market_hash_name);
+//		    }
+//		}
+//	    }
+//	});
+//    });    
 
-    if(offer.partner.getSteamID64() === "76561198040887172")
+    if(offer.partner.getSteamID64() === "66561198040887172")
     {
-        acceptOffer(offer);
+	acceptOffer(offer);
     }
     else if(toGet.length >= toGive.length)
     {
-        acceptOffer(offer);
-	    /*offer.itemsToReceive.forEach(function(item)
-	    {
-	        console.log("AppID: " + item.appid + ", Market Name: " + item.market_hash_name);
-	        market.getItem({"name": item.market_hash_name, "appID": item.appid }, function(err, mItem)
-	        {
-		        if(err)
-		        {
-		            console.log('Error: ', err);
-		            return;
-		        }
-		        else
-		        {
-		            console.log('Item: ', mItem.lowest_price);
-		            if(mItem.lowest_price >= 0.01)
-		            {
-			            console.log("Stashing: " + item.market_hash_name);
-			            if(true)
-			            {
-			                stashOffer.addMyItem(item);
-			                console.log("Stashed: " + item.market_hash_name);
-			            }
-		            }
-		        }
-	        });
-	    });*/
+	acceptOffer(offer);
     }
     else
     {
-        offer.decline();
+	offer.decline();
     }
-
-});
 
 manager.on('receivedOfferChanged', function(offer, oldState)
 {
     console.log("Offer #" + offer.id + " changed: " + TradeOfferManager.ETradeOfferState[oldState] + " (" + oldState + ") -> " +
     TradeOfferManager.ETradeOfferState[offer.state] + " (" + offer.state + ")");
-    sendStash(offer);
 });
 
 community.on('sessionExpired', function(err)
@@ -126,82 +122,29 @@ community.on('confKeyNeeded', function(tag, callback)
     callback(null, time, SteamTotp.getConfirmationKey(config.identity_secret, time, tag));
 });
 
-function sendStash(offer)
+function stashItems(offer)
 {
-    var stashOffer = manager.createOffer("76561198040887172");
-
-    offer.getReceivedItems(function(err, items)
-    {
-        if(err)
-        {
-            console.log("Couldn't get received items: " + err);
-        }
-        else
-        {
-            items.forEach(function(item)
-            {
-                market.getItem({"name": item.market_hash_name, "appID": item.appid }, function(err, mItem)
-                {
-                    if(err)
-                    {
-                        console.log('Error: ', err);
-                        return;
-                    }
-                    else
-                    {
-                        if(mItem.lowest_price >= 1)
-                        {
-                            console.log("Stashing: " + item.market_hash_name + ". Market Value: $" + mItem.lowest_price);
-                            stashOffer.addMyItem(item);
-                        }
-                    }
-                });
-            });
-        }
-    });
-
-
-    setTimeout(function()
-    {
     console.log("Sending offer");
-    stashOffer.setMessage("Items were over price cap");
-
-    if(stashOffer.itemsToGive.length > 0)
+    offer.setMessage("Items were over price cap");
+    offer.send(function(err, status)
     {
-    stashOffer.send(function(err, status)
-    {
-        if (err)
-        {
-            console.log(err);
-            return;
-        }
+	if (err)
+	{
+	    console.log(err);
+	    return;
+	}
 
-        if (status == 'pending')
-        {
-            // Accepts the mobile confirmation.
-            community.acceptConfirmationForObject(config.identity_secret, stashOffer.id, function(err)
-            {
-                if (err)
-                {
-                    if (err.message == 'Not Logged In')
-                    {
-                        self.client.webLogOn();
-                    }
-
-                    console.log('An error occurred while trying to accept the mobile confirmation: ' + err.message + '.');
-                    return;
-                }
-            });
-        }
-        else
-        {
-            console.log("Offer sent successfully");
-        }
+	if (status == 'pending')
+	{
+	    // We need to confirm it
+	    console.log("Offer sent, but requires confirmation");
+	    acceptOffer(offer);
+	}
+	else
+	{
+	    console.log("Offer sent successfully");
+	}
     });
-    }
-    },15000);
-
-    console.log("Offer sent successfully");
 }
 
 // Call this function when you want to accept an offer.
