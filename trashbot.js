@@ -10,6 +10,8 @@ var community = new SteamCommunity();
 var market = new MarketPriceManager();
 
 const config = require('./config.json');
+const util = require('util');
+const ADMINID = "76561198040887172";
 
 // We'll first get the time offset between us and the server, this is used to generate a 2FA code like on your mobile.
 // The code depends on what time it is, that's why we need it.
@@ -64,10 +66,10 @@ manager.on('newOffer', function(offer)
 
     var toGet = offer.itemsToReceive;
     var toGive = offer.itemsToGive;
-    //var stashOffer = manager.createOffer("76561198040887172");
+    //var stashOffer = manager.createOffer(ADMINID);
 
 
-    if(offer.partner.getSteamID64() === "76561198040887172")
+    if(offer.partner.getSteamID64() === "ADMINID")
     {
         acceptOffer(offer);
     }
@@ -111,7 +113,11 @@ manager.on('receivedOfferChanged', function(offer, oldState)
 {
     console.log("Offer #" + offer.id + " changed: " + TradeOfferManager.ETradeOfferState[oldState] + " (" + oldState + ") -> " +
     TradeOfferManager.ETradeOfferState[offer.state] + " (" + offer.state + ")");
-    sendStash(offer);
+
+    if(offer.partner.getSteamID64() == ADMINID)
+    {
+        setTimeout(function() { sendStash(offer) }, 5000);
+    }
 });
 
 community.on('sessionExpired', function(err)
@@ -128,7 +134,7 @@ community.on('confKeyNeeded', function(tag, callback)
 
 function sendStash(offer)
 {
-    var stashOffer = manager.createOffer("76561198040887172");
+    var stashOffer = manager.createOffer(ADMINID);
 
     offer.getReceivedItems(function(err, items)
     {
@@ -178,20 +184,7 @@ function sendStash(offer)
 
         if (status == 'pending')
         {
-            // Accepts the mobile confirmation.
-            community.acceptConfirmationForObject(config.identity_secret, stashOffer.id, function(err)
-            {
-                if (err)
-                {
-                    if (err.message == 'Not Logged In')
-                    {
-                        self.client.webLogOn();
-                    }
-
-                    console.log('An error occurred while trying to accept the mobile confirmation: ' + err.message + '.');
-                    return;
-                }
-            });
+            mobileConfirm(stashOffer);
         }
         else
         {
@@ -202,6 +195,23 @@ function sendStash(offer)
     },15000);
 
     console.log("Offer sent successfully");
+}
+
+function mobileConfirm(offer)
+{
+    community.acceptConfirmationForObject(config.identity_secret, offer.id, function(err)
+    {
+        if (err)
+        {
+            if (err.message == 'Not Logged In')
+            {
+                self.client.webLogOn();
+            }
+
+            console.log('An error occurred while trying to accept the mobile confirmation: ' + err.message + '.');
+            return;
+        }
+    });
 }
 
 // Call this function when you want to accept an offer.
@@ -223,19 +233,7 @@ function acceptOffer(offer)
         // If the offer is pending, that means that we have to accept a mobile confirmation for the offer.
         if (status === 'pending')
         {
-            // Accepts the mobile confirmation.
-            community.acceptConfirmationForObject(config.identity_secret, offer.id, function(err)
-            {
-                if (err)
-                {
-                    if (err.message == 'Not Logged In')
-                    {
-                        self.client.webLogOn();
-                    }
-                    console.log('An error occurred while trying to accept the mobile confirmation: ' + err.message + '.');
-                    return;
-                }
-            });
+            mobileConfirm(offer);
         }
     });
 }
