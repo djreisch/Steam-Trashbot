@@ -10,8 +10,6 @@ var community = new SteamCommunity();
 var market = new MarketPriceManager();
 
 const config = require('./config.json');
-const util = require('util');
-const ADMINID = "76561198040887172";
 
 // We'll first get the time offset between us and the server, this is used to generate a 2FA code like on your mobile.
 // The code depends on what time it is, that's why we need it.
@@ -66,41 +64,14 @@ manager.on('newOffer', function(offer)
 
     var toGet = offer.itemsToReceive;
     var toGive = offer.itemsToGive;
-    //var stashOffer = manager.createOffer(ADMINID);
 
-
-    if(offer.partner.getSteamID64() === "ADMINID")
+    if(offer.partner.getSteamID64() === config.admin_steam64)
     {
         acceptOffer(offer);
     }
     else if(toGet.length >= toGive.length)
     {
         acceptOffer(offer);
-	    /*offer.itemsToReceive.forEach(function(item)
-	    {
-	        console.log("AppID: " + item.appid + ", Market Name: " + item.market_hash_name);
-	        market.getItem({"name": item.market_hash_name, "appID": item.appid }, function(err, mItem)
-	        {
-		        if(err)
-		        {
-		            console.log('Error: ', err);
-		            return;
-		        }
-		        else
-		        {
-		            console.log('Item: ', mItem.lowest_price);
-		            if(mItem.lowest_price >= 0.01)
-		            {
-			            console.log("Stashing: " + item.market_hash_name);
-			            if(true)
-			            {
-			                stashOffer.addMyItem(item);
-			                console.log("Stashed: " + item.market_hash_name);
-			            }
-		            }
-		        }
-	        });
-	    });*/
     }
     else
     {
@@ -114,10 +85,7 @@ manager.on('receivedOfferChanged', function(offer, oldState)
     console.log("Offer #" + offer.id + " changed: " + TradeOfferManager.ETradeOfferState[oldState] + " (" + oldState + ") -> " +
     TradeOfferManager.ETradeOfferState[offer.state] + " (" + offer.state + ")");
 
-    if(offer.partner.getSteamID64() == ADMINID)
-    {
-        setTimeout(function() { sendStash(offer) }, 5000);
-    }
+    setTimeout(function() { createStash(offer) }, 3000);
 });
 
 community.on('sessionExpired', function(err)
@@ -132,9 +100,10 @@ community.on('confKeyNeeded', function(tag, callback)
     callback(null, time, SteamTotp.getConfirmationKey(config.identity_secret, time, tag));
 });
 
-function sendStash(offer)
+function createStash(offer)
 {
-    var stashOffer = manager.createOffer(ADMINID);
+    var stashOffer = manager.createOffer(config.stash_steam64);
+    var offerValid = new Boolean(false);
 
     offer.getReceivedItems(function(err, items)
     {
@@ -155,10 +124,11 @@ function sendStash(offer)
                     }
                     else
                     {
-                        if(mItem.lowest_price >= 1)
+                        if(mItem.lowest_price >= config.stash_value)
                         {
                             console.log("Stashing: " + item.market_hash_name + ". Market Value: $" + mItem.lowest_price);
                             stashOffer.addMyItem(item);
+                            offerValid = true;
                         }
                     }
                 });
@@ -166,15 +136,20 @@ function sendStash(offer)
         }
     });
 
-
-    setTimeout(function()
-    {
-    console.log("Sending offer");
     stashOffer.setMessage("Items were over price cap");
+    setTimeout(function() { sendOffer(stashOffer) }, 5000);
+}
 
-    if(stashOffer.itemsToGive.length > 0)
+function sendOffer(offer)
+{
+    if(offer.itemsToGive <= 0)
     {
-    stashOffer.send(function(err, status)
+        console.log("Items <= 0. Voiding");
+        return;
+    }
+
+    console.log("Sending offer");
+    offer.send(function(err, status)
     {
         if (err)
         {
@@ -184,17 +159,14 @@ function sendStash(offer)
 
         if (status == 'pending')
         {
-            mobileConfirm(stashOffer);
+            mobileConfirm(offer);
+            console.log("Offer sent successfully");
         }
         else
         {
             console.log("Offer sent successfully");
         }
     });
-    }
-    },15000);
-
-    console.log("Offer sent successfully");
 }
 
 function mobileConfirm(offer)
