@@ -2,7 +2,7 @@
   "shared_secret": "",
   "identity_secret": "",
   "account_name": "",
-  "account_password": ""
+  "account_password": "",
   "admin_steam64": "",
   "stash_steam64": ""
 }
