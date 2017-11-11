@@ -60,7 +60,6 @@ client.on('webSession', function(sessionID, cookies)
 manager.on('newOffer', function(offer)
 {
     console.log("Incoming offer from " + offer.partner.getSteamID64());
-    acceptOffer(offer);
 
     var toGet = offer.itemsToReceive;
     var toGive = offer.itemsToGive;
