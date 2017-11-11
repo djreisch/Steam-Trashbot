@@ -7,7 +7,7 @@ var client = new SteamUser({"promptSteamGuardCode": false}); // We don't want th
 var manager = new TradeOfferManager({"steam": client, "language": 'en', "pollInterval": 2000}); // Check new trades every 2 seconds
 var community = new SteamCommunity();
 
-const config = require('./config.json');
+const config = require('./simpleconfig.json');
 
 // We'll first get the time offset between us and the server, this is used to generate a 2FA code like on your mobile.
 // The code depends on what time it is, that's why we need it.
