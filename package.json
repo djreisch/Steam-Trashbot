@@ -17,7 +17,7 @@
     "steam": "^1.4.0",
     "steam-market-manager": "^1.0.8",
     "steam-totp": "^2.0.1",
-    "steam-tradeoffer-manager": "^2.9.0",
+    "steam-tradeoffer-manager": "^2.9.1",
     "steam-user": "^3.23.2",
     "steamcommunity": "^3.33.1",
     "steamstore": "^1.5.0"
