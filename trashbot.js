@@ -66,6 +66,9 @@ manager.on('newOffer', function(offer)
     var itemNames;
     var itemAr = [];
 
+    //do I even needs these function and variables anymore? I took
+    //that out right?
+
     toGet.forEach(function(item)
     {
         itemAr.push(item.market_hash_name);
@@ -75,28 +78,23 @@ manager.on('newOffer', function(offer)
     if(offer.partner.getSteamID64() === config.admin_steam64)
     {
         acceptOffer(offer);
+        console.log("Accepting Admin Offer (1)");
     }
     else if(toGet.length >= toGive.length)
     {
         acceptOffer(offer);
+        console.log("Accepting >= Offer (2)");
+    }
+    else if(toGive.length)
+    {
+        acceptOffer(offer);
+        console.log("Accepting Single Take Offer (3)");
     }
     else
     {
         offer.decline();
+        console.log("Declined Offer (0)");
     }
-
-
-    /*if(itemAr.length > 0)
-    {
-        offer.getUserDetails(function(err, me, them)
-        {
-            if(!err)
-            {
-                var msg = 'Recieved: ' + itemNames + ' from ' + them.personaName + ' [' + offer.partner + ']';
-                client.chatMessage(config.admin_steam64, msg);
-            }
-        });
-    }*/
 });
 
 manager.on('receivedOfferChanged', function(offer, oldState)
