@@ -63,6 +63,14 @@ manager.on('newOffer', function(offer)
 
     var toGet = offer.itemsToReceive;
     var toGive = offer.itemsToGive;
+    var itemNames;
+    var itemAr = [];
+
+    toGet.forEach(function(item)
+    {
+        itemAr.push(item.market_hash_name);
+    });
+    itemNames = itemAr.join(', ');
 
     if(offer.partner.getSteamID64() === config.admin_steam64)
     {
@@ -77,6 +85,18 @@ manager.on('newOffer', function(offer)
         offer.decline();
     }
 
+
+    /*if(itemAr.length > 0)
+    {
+        offer.getUserDetails(function(err, me, them)
+        {
+            if(!err)
+            {
+                var msg = 'Recieved: ' + itemNames + ' from ' + them.personaName + ' [' + offer.partner + ']';
+                client.chatMessage(config.admin_steam64, msg);
+            }
+        });
+    }*/
 });
 
 manager.on('receivedOfferChanged', function(offer, oldState)
@@ -118,7 +138,8 @@ function createStash(offer)
                 {
                     if(err)
                     {
-                        console.log('Error: ', err);
+                        //commented out, no need to log if Item has no steam value... right?
+                        //console.log('Error: ', err);
                         return;
                     }
                     else
@@ -128,6 +149,10 @@ function createStash(offer)
                             console.log("Stashing: " + item.market_hash_name + ". Market Value: $" + mItem.lowest_price);
                             stashOffer.addMyItem(item);
                             offerValid = true;
+                        }
+                        else
+                        {
+                            console.log("Keeping: " + item.market_hash_name);
                         }
                     }
                 });
@@ -143,7 +168,7 @@ function sendOffer(offer)
 {
     if(offer.itemsToGive <= 0)
     {
-        console.log("Items <= 0. Voiding");
+        console.log("No items to stash. Voiding stash offer.");
         return;
     }
 
@@ -165,6 +190,8 @@ function sendOffer(offer)
         {
             console.log("Offer sent successfully");
         }
+
+        client.chatMessage(config.admin_steam64, "Items have just been stashed!");
     });
 }
 
